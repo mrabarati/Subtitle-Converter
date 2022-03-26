@@ -46,8 +46,9 @@ def select_folder():
                 title='پوشه انتخاب شد',
                 message=folder_selected
             )
-
+run = lambda  :asyncio.run(mind_main(folder_choiced))
 def start():
+    global root
     if file_choiced == None and folder_choiced == None:
         showwarning('انتخاب کنید','لطفا فایل یا پوشه ای انتخاب کنید')
     elif file_choiced and folder_choiced:
@@ -57,7 +58,8 @@ def start():
         
     else:
         showwarning('برو بریم','پوشه در حال اسکن  برای شروع است')
-        asyncio.run(mind_main(folder_choiced))
+        root.destroy()
+        run()
         
 # button fo select file
 open_button = Button(

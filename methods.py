@@ -84,7 +84,7 @@ async def write_srt_data(data,filename,index,directory):
                 out_put += new_data[subtitle+2]+"\n"
                 convert = await translate(new_data[subtitle+2])
                 out_put += convert+"\n\n"
-                print(convert)
+        
 
             f = open(f'{addr}\\{FileSubtitle}\\{directory}\\{filename}','w+' , encoding='utf-8')
             f.write(u'{}'.format(out_put))

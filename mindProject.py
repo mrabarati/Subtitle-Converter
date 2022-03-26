@@ -40,4 +40,3 @@ async def mind_main(folder):
         print(colored(f'finished {folder_name} folder at >>{await calc_time(int(end-start))} ','green'))
         await log_seprator() #sepreted last logs
 
-asyncio.run(mind_main(f'C:\\users\\Ali\\Desktop\\javaScript'))
