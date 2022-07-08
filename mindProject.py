@@ -6,9 +6,8 @@ async def convert_one_file(filename):
     file = filename.split('/')[-1]
     data = open(filename).readlines()
     print(file)
-    if '.srt' in file:
-        await write_srt_data(data,file,0,'root')
-    
+    await write_data(data,file,0,'root')
+
 async def mind_main(folder):
     type_sub = ['.srt','.vtt']
     os.chdir(folder)
@@ -19,20 +18,19 @@ async def mind_main(folder):
     
     #creat folders for new subtitles
     direction = os.getcwd().split('\\')[-1]
-    print(direction)
+    # print(direction)
     try:
-        await creat_folders(direction) 
+        await creat_folders([direction,]) 
         await creat_folders(folders) 
     except FileExistsError:
         pass
-
+    
     #############single folder section################
     start = time.time()
     for index,filename in enumerate(files):
         
         data = open(filename).readlines()
-        await write_srt_data(data,filename,index,direction)\
-            if '.srt' in filename else write_vtt_data()
+        await write_data(data,filename,index,direction)
         await log(index,filename,direction)
     if len(files) != 0:
         end = time.time()
@@ -53,9 +51,7 @@ async def mind_main(folder):
         else:
             for index_,filename in enumerate(scaned):
                 data = open(f'{folder_name}\\{filename}' , encoding='utf8').readlines()
-
-                await write_srt_data(data,filename,index_,folder_name)\
-                    if '.srt' in filename else write_vtt_data()
+                await write_data(data,filename,index_,folder_name)
                 await log(index_,filename,folder_name)
                 
             end = time.time()

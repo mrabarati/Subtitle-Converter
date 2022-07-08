@@ -5,19 +5,27 @@ import time
 import asyncio
 import tqdm
 import pprint
-FileSubtitle = 'Ethical'
+FileSubtitle = 'tranlated_data'
 logFile = open(f'C:\\Users\\{os.getlogin()}\\Desktop\\log.text', mode = 'w')
 logFile.close()
 
+#set new name for FileSubtitle by user
+async def set_FileSubtitle(name):
+    global FileSubtitle
+    FileSubtitle = name
+
 #first section creat new folder subtitles
-async def creat_folders(*folders):
-    folders = folders[0]
+async def creat_folders(folders):
+    print(folders)
+    status = False if type(folders) != list else True
+    # print(folders,status)
     
     try:
         global FileSubtitle 
         addr = f'C:\\Users\\{os.getlogin()}\\Desktop\\'
         os.mkdir(f'{addr}{FileSubtitle}')
         for folder in folders:
+            
             os.mkdir(f'{addr}\\{FileSubtitle}\\{folder}')
     except :
         for folder in folders:
@@ -54,85 +62,79 @@ async def calc_time(secend):
     secend = secend -m*60
     return f'{h} Hour: {m} min: {secend} secend'
 
-#change tokhmi data to readable data
-async def debuge_tokhomi_bug(data):
-    new_data = []
-    i = 0
-    
-    while i<len(data)-1:
-        
-        line = data[i]
-        if line.count(':') !=4 and line.isdigit() == False:
-            while True:
-                if data[i+1].isdigit() == False and \
-                    data[i+1].count(':') !=4 and '-->' not in data[i+1]:
-                    line+=data[i+1]
-                    i+=1
-                else:
-                    break
-        i+=1
-        new_data.append(line)
-    new_data.append(data[i])
-    return new_data
-
-async def write_srt_data(data,filename,index,directory):
-
+#write and translate subtitle 
+async def write_data(data,filename,index,directory):
     addr = f'C:\\Users\\{os.getlogin()}\\Desktop\\'
     if directory!='root':
         for d in os.listdir(f'{addr}{FileSubtitle}\\{directory}\\'):
             if filename in d:
                 print(colored(f'file was in directory>>{directory}>>{filename}' , 'red'))
                 return
+    else:
+       for d in os.listdir(f'{addr}{FileSubtitle}\\'):
+            if filename in d:
+                print(colored(f'file was in directory>>{directory}>>{filename}' , 'red'))
+                return 
+    #check the string is a number!!
+    async def is_digit_(string):
+        string = string.strip()
+        if string.isdigit():
+            return True
+        return False
 
+    #check is time subtitle
+    async def is_time_subtitle(string):
+        string = string.strip()
+        if string.count(':')>=2 and "-->" in string:
+            return True
 
-    new_data  = [i.replace('\n','')  for i in data if i.replace('\n','').strip() !='']
-    out_put = ''
-    # pprint.pprint(new_data)
-    if len(new_data)%3 !=0: 
-        print("{} :\\\n{}:)".format(colored('file is very thokhmi','red'),colored('try to change bad data','green')))
-        new_data = await debuge_tokhomi_bug(new_data)
+    #chck the string is subtitle
+    async def is_subtitle(string):
+        if len(string)>=3:
+            return True
+
+    async def find_first_line(list_data):
+        index = 0
+        for i in list_data:
+            if await is_time_subtitle(i):
+                break
+            index +=1
+
+        return index
     
-    try:
-        
-        if directory =='root':
-            
-            for subtitle in tqdm.tqdm(range(0,len(new_data),3),desc=colored('converting..','green')):
-                out_put += new_data[subtitle]+"\n"
-                out_put += new_data[subtitle+1]+"\n"
-                out_put += new_data[subtitle+2]+"\n"
-                convert = await translate(new_data[subtitle+2])
-                out_put += convert+"\n\n"
-                
-                
-            f = open(f'{addr}\\{filename}','w+' , encoding='utf-8')
-            f.write(u'{}'.format(out_put))
-            f.close()
-            
-        else:
-            
-            for subtitle in tqdm.tqdm(range(0,len(new_data),3),desc=colored('converting..','green')):
-                out_put += new_data[subtitle]+"\n" #Time
-                out_put += new_data[subtitle+1]+"\n" #subtitle En
-                out_put += new_data[subtitle+2]+"\n"
-                convert = await translate(new_data[subtitle+2])
-                out_put += convert+"\n\n"
-        
+    data = data[await find_first_line(data):]
+    new_data = []
+    index = 1
 
-            f = open(f'{addr}\\{FileSubtitle}\\{directory}\\{filename}','w+' , encoding='utf-8')
-            f.write(u'{}'.format(out_put))
-            f.close()
+    try:
+        for subtitle in tqdm.tqdm(data,desc=colored('converting..','green')):
+            subtitle = subtitle.replace('\n','').strip()
+            if await is_time_subtitle(subtitle):
+                new_data.append('\n')
+                new_data.append(index)
+                index +=1
+                new_data.append(subtitle)
+            elif await is_subtitle(subtitle):
+                #convert data to dst lang and append into new_data
+                new_data.append(subtitle)
+                new_data.append(await translate(subtitle))
+        
+        #write finally data
+        f = open(f'{addr}\\{filename}','w+' , encoding='utf-8') if directory =='root' else \
+                open(f'{addr}\\{FileSubtitle}\\{directory}\\{filename}','w+' , encoding='utf-8')
+        for i in new_data:
+            if i=='\n':
+                f.write(u'\n')
+            else:
+                f.write(u'{}\n'.format(str(i)))
+        f.close()
+
     except Exception as e:
-        print(e)
         print(colored("server rejected your request..",'red'))
         print('try again after 60 sencend')
         for i in range(60,0,-1):
             print(f"",end=f'\r{i}')
             time.sleep(1)
-        #os.remove(f'{addr}\\{FileSubtitle}\\{directory}\\{filename}') #remove defext file
-        await write_srt_data(data,filename,index,directory) #try again lost file
+        
+        await write_data(data,filename,index,directory) #try again lost file
     print(f"Successfully The translate file {filename} from {directory} folder")
-
-
-async def write_vtt_data():
-    pass
-
