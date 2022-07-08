@@ -2,22 +2,28 @@ import asyncio
 import os
 from tkinter.messagebox import showinfo
 from methods import *
-async def convert_one_file(filename):
+
+async def convert_one_file(filename,config_):
+    
     file = filename.split('/')[-1]
+
     data = open(filename).readlines()
     print(file)
-    await write_data(data,file,0,'root')
+    await write_data(data,file,0,'root',config_)
+    await log(0,filename,'root')
 
-async def mind_main(folder):
+async def mind_main(folder,config_):
     type_sub = ['.srt','.vtt']
     os.chdir(folder)
-    # os.chdir("C:\\Users\\Ali\\Desktop\\EthicalHacker\\")
+    
 
     files = [i for i in os.listdir('.') if type_sub[0] in i or type_sub[1] in i]#to do list all subtitles
     folders = [i for i in os.listdir('.') if os.path.isdir(i)]#to do list all folders
     
     #creat folders for new subtitles
+    
     direction = os.getcwd().split('\\')[-1]
+
     # print(direction)
     try:
         await creat_folders([direction,]) 
@@ -30,7 +36,7 @@ async def mind_main(folder):
     for index,filename in enumerate(files):
         
         data = open(filename).readlines()
-        await write_data(data,filename,index,direction)
+        await write_data(data,filename,index,direction,config_)
         await log(index,filename,direction)
     if len(files) != 0:
         end = time.time()
@@ -42,7 +48,10 @@ async def mind_main(folder):
     
     for index,folder_name in enumerate(folders):
         print(colored(f"Scaning {folder_name}...",'green'))
+        
         scaned = [i for i in os.listdir(f'{folder_name}\\') if type_sub[0] in i or type_sub[1] in i]
+        
+            
         start = time.time()
         print(scaned)
         if len(scaned) ==0:
@@ -50,8 +59,10 @@ async def mind_main(folder):
             continue
         else:
             for index_,filename in enumerate(scaned):
+                
                 data = open(f'{folder_name}\\{filename}' , encoding='utf8').readlines()
-                await write_data(data,filename,index_,folder_name)
+                
+                await write_data(data,filename,index_,folder_name,config_)
                 await log(index_,filename,folder_name)
                 
             end = time.time()

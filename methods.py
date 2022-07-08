@@ -2,11 +2,12 @@ import os
 from googletrans import Translator
 from termcolor import colored
 import time
-import asyncio
 import tqdm
-import pprint
+
 FileSubtitle = 'tranlated_data'
+
 logFile = open(f'C:\\Users\\{os.getlogin()}\\Desktop\\log.text', mode = 'w')
+
 logFile.close()
 
 #set new name for FileSubtitle by user
@@ -22,16 +23,20 @@ async def creat_folders(folders):
     
     try:
         global FileSubtitle 
+        
         addr = f'C:\\Users\\{os.getlogin()}\\Desktop\\'
+
         os.mkdir(f'{addr}{FileSubtitle}')
         for folder in folders:
             
             os.mkdir(f'{addr}\\{FileSubtitle}\\{folder}')
+
     except :
         for folder in folders:
             try:
-
+                
                 os.mkdir(f'{addr}\\{FileSubtitle}\\{folder}')
+
             except:
                 pass
 #translate text
@@ -44,13 +49,17 @@ async def translate(data):
 #last_success is file that was successfully translated
 #folder file folder
 async def log(index,last_success_file,folder):
+    
     addr = f'C:\\Users\\{os.getlogin()}\\Desktop\\log.text'
+
     logFile = open(addr, mode = 'a')
     logFile.write(f'{folder} >> {index} >> file name >>{last_success_file}\n')
     logFile.close()
 
 async def log_seprator():
+    
     addr = f'C:\\Users\\{os.getlogin()}\\Desktop\\log.text'
+
     logFile = open(addr, mode = 'a')
     logFile.write('##################################\n')
     logFile.close()
@@ -63,18 +72,24 @@ async def calc_time(secend):
     return f'{h} Hour: {m} min: {secend} secend'
 
 #write and translate subtitle 
-async def write_data(data,filename,index,directory):
+async def write_data(data,filename,index,directory,config_convert):
+    
     addr = f'C:\\Users\\{os.getlogin()}\\Desktop\\'
+
     if directory!='root':
+        
         for d in os.listdir(f'{addr}{FileSubtitle}\\{directory}\\'):
             if filename in d:
                 print(colored(f'file was in directory>>{directory}>>{filename}' , 'red'))
                 return
+
     else:
-       for d in os.listdir(f'{addr}{FileSubtitle}\\'):
-            if filename in d:
-                print(colored(f'file was in directory>>{directory}>>{filename}' , 'red'))
-                return 
+        
+        for d in os.listdir(f'{addr}\\'):
+                if filename in d:
+                    print(colored(f'file was in directory>>{directory}>>{filename}' , 'red'))
+                    return 
+
     #check the string is a number!!
     async def is_digit_(string):
         string = string.strip()
@@ -116,12 +131,17 @@ async def write_data(data,filename,index,directory):
                 new_data.append(subtitle)
             elif await is_subtitle(subtitle):
                 #convert data to dst lang and append into new_data
-                new_data.append(subtitle)
-                new_data.append(await translate(subtitle))
+                if config_convert:
+                    new_data.append(subtitle)
+                    new_data.append(await translate(subtitle))
+                else:
+                    new_data.append(await translate(subtitle))
         
         #write finally data
+        
         f = open(f'{addr}\\{filename}','w+' , encoding='utf-8') if directory =='root' else \
                 open(f'{addr}\\{FileSubtitle}\\{directory}\\{filename}','w+' , encoding='utf-8')
+        
         for i in new_data:
             if i=='\n':
                 f.write(u'\n')
@@ -136,5 +156,5 @@ async def write_data(data,filename,index,directory):
             print(f"",end=f'\r{i}')
             time.sleep(1)
         
-        await write_data(data,filename,index,directory) #try again lost file
+        await write_data(data,filename,index,directory,config_convert) #try again lost file
     print(f"Successfully The translate file {filename} from {directory} folder")
