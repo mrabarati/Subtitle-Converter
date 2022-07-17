@@ -8,10 +8,10 @@ async def convert_one_file(filename,config_):
     file = filename.split('/')[-1]
 
     data = open(filename).readlines()
-    print(file)
     await write_data(data,file,0,'root',config_)
     await log(0,filename,'root')
-
+    if config_['shutter']:
+        os.system('shutdown /s /t 1')
 async def mind_main(folder,config_):
     type_sub = ['.srt','.vtt']
     os.chdir(folder)
@@ -53,7 +53,7 @@ async def mind_main(folder,config_):
         
             
         start = time.time()
-        print(scaned)
+        # print(scaned)
         if len(scaned) ==0:
             print("zero length...")
             continue
@@ -69,4 +69,6 @@ async def mind_main(folder,config_):
             print(colored(f'finished {folder_name} folder at >>{await calc_time(int(end-start))} ','green'))
             await log_seprator() #sepreted last logs
     print("finished")
+    if config_['shutter']:
+        os.system('shutdown /s /t 1')
     return

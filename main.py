@@ -1,5 +1,4 @@
 import tkinter as tk
-from tkinter import ttk
 from threading import Thread
 from tkinter.messagebox import showinfo,showwarning
 from tkinter import filedialog as fd
@@ -15,14 +14,21 @@ run = lambda  x :run_method(x)
 
 class data:
     def __init__(self):
-        self.check_box_two = 1
+        #parametr one is translate tow lang
+        #parametr two is shudown auto after work
+        self.data ={'check_box_two':1,"shutter":0}
         
-        
+    @property    
     def get_data(self):
-        return self.check_box_two
+        return self.data
     
-    def set_data(self, data):
-        self.check_box_two = data
+    @get_data.setter
+    def set_data_check_box_two(self, data):
+        self.data['check_box_two'] = data
+    
+    @get_data.setter
+    def set_data_shutter(self, data):
+        self.data['shutter'] = data
 
 class tkinterApp(tk.Tk):
     def __init__(self, *args, **kwargs):
@@ -123,21 +129,21 @@ class main(tk.Frame):
             
             par1,par2 = file_choiced,folder_choiced
             file_choiced = folder_choiced= False
-            Thread(target=run,args=(convert_one_file(par1,loaded_object.get_data()),)).start() 
-            Thread(target = run,args =(mind_main(par2,loaded_object.get_data()),)).start()
+            Thread(target=run,args=(convert_one_file(par1,loaded_object.get_data),)).start() 
+            Thread(target = run,args =(mind_main(par2,loaded_object.get_data),)).start()
 
         elif file_choiced :
             showwarning('برو بریم','فرایند تبدیل فایل شروع شد')
             par = file_choiced
             file_choiced = None
-            Thread(target=run,args=(convert_one_file(par,loaded_object.get_data()),)).start()
+            Thread(target=run,args=(convert_one_file(par,loaded_object.get_data),)).start()
             
         else:
             showwarning('برو بریم','پوشه در حال اسکن  برای شروع است')
             # root.destroy()
             par = folder_choiced
             folder_choiced =None
-            Thread(target = run,args =(mind_main(par,loaded_object.get_data()),)).start()
+            Thread(target = run,args =(mind_main(par,loaded_object.get_data),)).start()
     
     def select_file(self):  
         global file_choiced 
@@ -175,7 +181,7 @@ class main(tk.Frame):
         
         self.controller.geometry('300x300')
         self.controller.resizable(False, False)
-        self.controller.title('صفحه اصلی')
+        self.controller.title('تنظیمات')
         self.controller.show_frame("Config")
 
 		
@@ -192,11 +198,15 @@ class Config(tk.Frame):
         
         
 
-        #check button
+        #check button translate 1
         self.text_ = 'زیرنویس دوزبانه باشد(زبان مبدا و مقصد)'
-        self.status_check_button = tk.IntVar(self,value=loaded_object.get_data())
+        self.status_check_button = tk.IntVar(self,value=loaded_object.get_data['check_box_two'])
         self.bt_check = tk.Checkbutton(self, text=self.text_, variable=self.status_check_button)
         
+        #check button translate 1
+        self._text_ = 'سیستم پس از انجام عملیات خاموش شود'
+        self.status_check_two = tk.IntVar(self,value=loaded_object.get_data['shutter'])
+        self.bt_check_two = tk.Checkbutton(self, text=self._text_, variable=self.status_check_two)
         self.config_btns()
     
     def config_btns(self):
@@ -210,11 +220,18 @@ class Config(tk.Frame):
         self.bt_check.place(x=25, y=10)
         self.bt_check.configure(background='#A8B4AF',width=30)
         
+        #config check btn two
+
+        self.bt_check_two.place(x=25,y=40)
+        self.bt_check_two.configure(background='#A8B4AF',width=30)
+
+
     def show_frame(self, page_name):
-        loaded_object.set_data(self.status_check_button.get())
+        loaded_object.set_data_check_box_two = self.status_check_button.get()
+        loaded_object.set_data_shutter = self.status_check_two.get()
         self.controller.geometry('320x195')
         self.controller.resizable(False, False)
-        self.controller.title('تنظیمات')
+        self.controller.title('صفحه اصلی')
         self.controller.show_frame("main")
     
 
@@ -223,18 +240,21 @@ if __name__ == '__main__':
         import pickle
         file_to_read = open("stored_object.pickle", "rb")
         loaded_object = pickle.load(file_to_read)
-        #here
+
         app = tkinterApp()
         app.mainloop()
+
         file_to_store = open("stored_object.pickle", "wb")
         pickle.dump(loaded_object, file_to_store)
+        
         file_to_store.close()
         file_to_read.close()
     except Exception as e:
         loaded_object = data()
-        #here
+
         app = tkinterApp()
         app.mainloop()
+
         file_to_store = open("stored_object.pickle", "wb")
         pickle.dump(loaded_object, file_to_store)
         file_to_store.close()

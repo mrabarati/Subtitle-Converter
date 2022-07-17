@@ -131,7 +131,7 @@ async def write_data(data,filename,index,directory,config_convert):
                 new_data.append(subtitle)
             elif await is_subtitle(subtitle):
                 #convert data to dst lang and append into new_data
-                if config_convert:
+                if config_convert['check_box_two']:
                     new_data.append(subtitle)
                     new_data.append(await translate(subtitle))
                 else:
