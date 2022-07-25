@@ -129,7 +129,7 @@ async def write_data(data,filename,index,directory,config_convert):
                 new_data.append(index)
                 index +=1
                 new_data.append(subtitle)
-            elif await is_subtitle(subtitle):
+            elif await not is_digit_(subtitle):
                 #convert data to dst lang and append into new_data
                 if config_convert['check_box_two']:
                     new_data.append(subtitle)
