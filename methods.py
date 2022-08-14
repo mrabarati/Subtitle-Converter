@@ -1,12 +1,12 @@
-import os
+from os import (mkdir,listdir,getlogin)
 from googletrans import Translator
 from termcolor import colored
-import time
+from time import sleep
 import tqdm
 
 FileSubtitle = 'tranlated_data'
 
-logFile = open(f'C:\\Users\\{os.getlogin()}\\Desktop\\log.text', mode = 'w')
+logFile = open(f'C:\\Users\\{getlogin()}\\Desktop\\log.text', mode = 'w')
 
 logFile.close()
 
@@ -24,18 +24,18 @@ async def creat_folders(folders):
     try:
         global FileSubtitle 
         
-        addr = f'C:\\Users\\{os.getlogin()}\\Desktop\\'
+        addr = f'C:\\Users\\{getlogin()}\\Desktop\\'
 
-        os.mkdir(f'{addr}{FileSubtitle}')
+        mkdir(f'{addr}{FileSubtitle}')
         for folder in folders:
             
-            os.mkdir(f'{addr}\\{FileSubtitle}\\{folder}')
+            mkdir(f'{addr}\\{FileSubtitle}\\{folder}')
 
     except :
         for folder in folders:
             try:
                 
-                os.mkdir(f'{addr}\\{FileSubtitle}\\{folder}')
+                mkdir(f'{addr}\\{FileSubtitle}\\{folder}')
 
             except:
                 pass
@@ -50,7 +50,7 @@ async def translate(data):
 #folder file folder
 async def log(index,last_success_file,folder):
     
-    addr = f'C:\\Users\\{os.getlogin()}\\Desktop\\log.text'
+    addr = f'C:\\Users\\{getlogin()}\\Desktop\\log.text'
 
     logFile = open(addr, mode = 'a')
     logFile.write(f'{folder} >> {index} >> file name >>{last_success_file}\n')
@@ -58,7 +58,7 @@ async def log(index,last_success_file,folder):
 
 async def log_seprator():
     
-    addr = f'C:\\Users\\{os.getlogin()}\\Desktop\\log.text'
+    addr = f'C:\\Users\\{getlogin()}\\Desktop\\log.text'
 
     logFile = open(addr, mode = 'a')
     logFile.write('##################################\n')
@@ -72,20 +72,20 @@ async def calc_time(secend):
     return f'{h} Hour: {m} min: {secend} secend'
 
 #write and translate subtitle 
-async def write_data(data,filename,index,directory,config_convert):
+async def write_data(data,filename,index,directory,config_convert,sso):
     
-    addr = f'C:\\Users\\{os.getlogin()}\\Desktop\\'
+    addr = f'C:\\Users\\{getlogin()}\\Desktop\\'
 
     if directory!='root':
         
-        for d in os.listdir(f'{addr}{FileSubtitle}\\{directory}\\'):
+        for d in listdir(f'{addr}{FileSubtitle}\\{directory}'):
             if filename in d:
                 print(colored(f'file was in directory>>{directory}>>{filename}' , 'red'))
                 return
 
     else:
         
-        for d in os.listdir(f'{addr}\\'):
+        for d in listdir(f'{addr}'):
                 if filename in d:
                     print(colored(f'file was in directory>>{directory}>>{filename}' , 'red'))
                     return 
@@ -124,12 +124,14 @@ async def write_data(data,filename,index,directory,config_convert):
     try:
         for subtitle in tqdm.tqdm(data,desc=colored('converting..','green')):
             subtitle = subtitle.replace('\n','').strip()
+            if sso.get_convert() == False:
+                return
             if await is_time_subtitle(subtitle):
                 new_data.append('\n')
                 new_data.append(index)
                 index +=1
                 new_data.append(subtitle)
-            elif await not is_digit_(subtitle):
+            elif await is_digit_(subtitle) == False:
                 #convert data to dst lang and append into new_data
                 if config_convert['check_box_two']:
                     new_data.append(subtitle)
@@ -154,7 +156,10 @@ async def write_data(data,filename,index,directory,config_convert):
         print('try again after 60 sencend')
         for i in range(60,0,-1):
             print(f"",end=f'\r{i}')
-            time.sleep(1)
+            sleep(1)
         
-        await write_data(data,filename,index,directory,config_convert) #try again lost file
+        await write_data(data,filename,index,directory,config_convert,sso) #try again lost file
     print(f"Successfully The translate file {filename} from {directory} folder")
+    
+    
+    

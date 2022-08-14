@@ -1,28 +1,34 @@
-import asyncio
 import os
-from tkinter.messagebox import showinfo
+from os import (listdir,system,chdir,getcwd,path)
 from methods import *
+import time
+import Virtual_thread
+Object_pro = Virtual_thread.Thread_()
 
-async def convert_one_file(filename,config_):
+def finish():
+    global Object_pro
+    Object_pro.stop()
     
+async def convert_one_file(filename,config_):
+  
     file = filename.split('/')[-1]
 
     data = open(filename).readlines()
-    await write_data(data,file,0,'root',config_)
+    await write_data(data,file,0,'root',config_,Object_pro)
     await log(0,filename,'root')
     if config_['shutter']:
-        os.system('shutdown /s /t 1')
+        system('shutdown /s /t 1')
 async def mind_main(folder,config_):
     type_sub = ['.srt','.vtt']
-    os.chdir(folder)
+    chdir(folder)
     
 
-    files = [i for i in os.listdir('.') if type_sub[0] in i or type_sub[1] in i]#to do list all subtitles
-    folders = [i for i in os.listdir('.') if os.path.isdir(i)]#to do list all folders
+    files = [i for i in listdir('.') if type_sub[0] in i or type_sub[1] in i]#to do list all subtitles
+    folders = [i for i in listdir('.') if path.isdir(i)]#to do list all folders
     
     #creat folders for new subtitles
     
-    direction = os.getcwd().split('\\')[-1]
+    direction = getcwd().split('\\')[-1]
 
     # print(direction)
     try:
@@ -34,9 +40,10 @@ async def mind_main(folder,config_):
     #############single folder section################
     start = time.time()
     for index,filename in enumerate(files):
-        
+        if Object_pro.get_convert() == False:
+            return
         data = open(filename).readlines()
-        await write_data(data,filename,index,direction,config_)
+        await write_data(data,filename,index,direction,config_,Object_pro)
         await log(index,filename,direction)
     if len(files) != 0:
         end = time.time()
@@ -49,7 +56,7 @@ async def mind_main(folder,config_):
     for index,folder_name in enumerate(folders):
         print(colored(f"Scaning {folder_name}...",'green'))
         
-        scaned = [i for i in os.listdir(f'{folder_name}\\') if type_sub[0] in i or type_sub[1] in i]
+        scaned = [i for i in listdir(f'{folder_name}\\') if type_sub[0] in i or type_sub[1] in i]
         
             
         start = time.time()
@@ -59,10 +66,11 @@ async def mind_main(folder,config_):
             continue
         else:
             for index_,filename in enumerate(scaned):
-                
+                if Object_pro.get_convert() == False:
+                    return
                 data = open(f'{folder_name}\\{filename}' , encoding='utf8').readlines()
                 
-                await write_data(data,filename,index_,folder_name,config_)
+                await write_data(data,filename,index_,folder_name,config_,Object_pro)
                 await log(index_,filename,folder_name)
                 
             end = time.time()
@@ -70,5 +78,5 @@ async def mind_main(folder,config_):
             await log_seprator() #sepreted last logs
     print("finished")
     if config_['shutter']:
-        os.system('shutdown /s /t 1')
+        system('shutdown /s /t 1')
     return
