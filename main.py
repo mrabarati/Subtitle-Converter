@@ -81,8 +81,9 @@ class MainWindow(QMainWindow):
     def exitProgram(self):
         widget.hide()
         finish()
-        exit()
-        #widget.hide()
+        #exit()
+        self.close()
+        
     def selectFile(self):
         Desktop = f"C:\\users\\{getlogin()}\\Desktop"
 
@@ -148,7 +149,7 @@ class MainWindow(QMainWindow):
         confWindowObject = windowConfig()
         widget.addWidget(confWindowObject)
         widget.setWindowTitle('تنظیمات')
-        widget.setWindowIcon(QIcon("\\picturs\\python.png"))
+        widget.setWindowIcon(QIcon("python.png"))
         widget.setCurrentIndex(widget.currentIndex()+1)
         widget.setFixedWidth(300)
         widget.setFixedHeight(300)
@@ -235,6 +236,7 @@ class windowConfig(QMainWindow):
         widget.setCurrentIndex(widget.currentIndex()-1) 
         widget.setFixedWidth(320)
         widget.setFixedHeight(200)
+        widget.setWindowIcon(QIcon('python.png'))
         widget.setStyleSheet('background-color:#94e944')
 
 

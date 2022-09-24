@@ -19,11 +19,15 @@ async def convert_one_file(filename,config_):
     if config_['shutter']:
         system('shutdown /s /t 1')
 async def mind_main(folder,config_):
-    type_sub = ['.srt','.vtt']
+    type_sub = ('.srt','.vtt')
     chdir(folder)
     
 
     files = [i for i in listdir('.') if type_sub[0] in i or type_sub[1] in i]#to do list all subtitles
+    
+    #better way for list files
+    #files = [i for i in listdir('.') if i.endswith(type_sub)]
+    #files = [filter(sample.endswith, type_sub) for i in listdir('.')]
     folders = [i for i in listdir('.') if path.isdir(i)]#to do list all folders
     
     #creat folders for new subtitles
