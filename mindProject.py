@@ -1,4 +1,3 @@
-import os
 from os import (listdir,system,chdir,getcwd,path)
 from methods import *
 import time
@@ -14,7 +13,7 @@ async def convert_one_file(filename,config_):
     file = filename.split('/')[-1]
 
     data = open(filename).readlines()
-    await write_data(data,file,0,'root',config_,Object_pro)
+    await write_data(data,file,0,'root',config_,Object_pro,None)
     await log(0,filename,'root')
     if config_['shutter']:
         system('shutdown /s /t 1')
@@ -74,7 +73,7 @@ async def mind_main(folder,config_):
                     return
                 data = open(f'{folder_name}\\{filename}' , encoding='utf8').readlines()
                 
-                await write_data(data,filename,index_,folder_name,config_,Object_pro)
+                await write_data(data,filename,index_,folder_name,config_,Object_pro,None)
                 await log(index_,filename,folder_name)
                 
             end = time.time()

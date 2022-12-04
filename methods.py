@@ -72,7 +72,12 @@ async def calc_time(secend):
     return f'{h} Hour: {m} min: {secend} secend'
 
 #write and translate subtitle 
-async def write_data(data,filename,index,directory,config_convert,sso):
+async def write_data(data,filename,index,directory,config_convert,sso,dic_recovery):
+    if dic_recovery is None:
+        dic_recovery={
+            "index":0,
+            "status":True
+        }
     
     addr = f'C:\\Users\\{getlogin()}\\Desktop\\'
 
@@ -116,13 +121,20 @@ async def write_data(data,filename,index,directory,config_convert,sso):
             index +=1
 
         return index
-    
-    data = data[await find_first_line(data):]
-    new_data = []
-    index = 1
 
+    
+    #if data is first called in method
+    
+    if dic_recovery["status"]:
+        data = data[await find_first_line(data):]
+        new_data = []
+        index = 1
+    else:
+        data = data
+        new_data = dic_recovery["data"]
+    
     try:
-        for subtitle in tqdm.tqdm(data,desc=colored('converting..','green')):
+        for index_sub,subtitle in enumerate(tqdm.tqdm(data[dic_recovery["index"]:],desc=colored('converting..','green'))):
             subtitle = subtitle.replace('\n','').strip()
             if sso.get_convert() == False:
                 return
@@ -158,8 +170,20 @@ async def write_data(data,filename,index,directory,config_convert,sso):
             print(f"",end=f'\r{i}')
             sleep(1)
         
-        await write_data(data,filename,index,directory,config_convert,sso) #try again lost file
-    print(f"Successfully The translate file {filename} from {directory} folder")
+        recover_data = {
+            "data":new_data,
+            "index":index_sub,
+            "status":False
+            
+        }
+
+        
+        
+        await write_data(data,filename,index,directory,config_convert,sso
+        ,recover_data
+        ) #try again lost file
+    finally:
+        print(f"Successfully The translate file {filename} from {directory} folder")
     
     
     
