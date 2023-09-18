@@ -257,12 +257,10 @@ def start_convert(course_path: str, config_object: object,  stop_thread:object, 
         convert_object.start()
 
     # Shutdown system
-    # config_object.shutdown()
+    config_object.shutdown()
 
     print("translated file" if single_file else "All files translated")
 
 
 
-# {'source_path': '/media/ali/51E9-B1A8/down/javaScript/01 - Welcome, Welcome, Welcome_/',
-#  'dest_path': '/media/ali/51E9-B1A8/down/new_sub_curse_javaScript/01 - Welcome, Welcome, Welcome_/',
-#  'file_name': '001 Course Structure and Projects_Downloadly.ir_en.srt'}
+
